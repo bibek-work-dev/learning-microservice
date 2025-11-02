@@ -8,17 +8,60 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UsersResolver = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const users_service_1 = require("./users.service");
+const microservices_1 = require("@nestjs/microservices");
 let UsersResolver = class UsersResolver {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
     }
+    async getUsers() {
+        return this.usersService.findAll();
+    }
+    async getUserById(id) {
+        return this.usersService.findById(id);
+    }
+    async createUser(data) {
+        return this.usersService.createUser(data.name, data.email);
+    }
+    async handlePostCreated(data) {
+        console.log('📢 Users service received post_created event:', data);
+    }
 };
 exports.UsersResolver = UsersResolver;
+__decorate([
+    (0, microservices_1.MessagePattern)({ cmd: 'get_users' }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], UsersResolver.prototype, "getUsers", null);
+__decorate([
+    (0, microservices_1.MessagePattern)({ cmd: 'get_user_by_id' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersResolver.prototype, "getUserById", null);
+__decorate([
+    (0, microservices_1.MessagePattern)({ cmd: 'create_user' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersResolver.prototype, "createUser", null);
+__decorate([
+    (0, microservices_1.EventPattern)({ cmd: 'post_created' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersResolver.prototype, "handlePostCreated", null);
 exports.UsersResolver = UsersResolver = __decorate([
     (0, graphql_1.Resolver)(),
     __metadata("design:paramtypes", [users_service_1.UsersService])
