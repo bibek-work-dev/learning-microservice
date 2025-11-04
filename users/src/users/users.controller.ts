@@ -15,7 +15,8 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'get_user_by_id' })
   async getUserById(@Payload() id: string) {
-    return this.usersService.findById(id);
+    const result = await this.usersService.findById(id);
+    return result
   }
 
   @MessagePattern({ cmd: 'register_user' })

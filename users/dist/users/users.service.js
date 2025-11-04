@@ -33,6 +33,7 @@ let UsersService = class UsersService {
     }
     async findById(id) {
         const user = await this.userModel.findById(id).exec();
+        console.log("userr in findById", user);
         if (!user) {
             throw new microservices_1.RpcException("User Not Found");
         }

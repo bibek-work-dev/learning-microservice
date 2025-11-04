@@ -19,6 +19,7 @@ export class UsersService {
 
   async findById(id: string): Promise<UserDocument> {
     const user = await this.userModel.findById(id).exec();
+    console.log("userr in findById", user)
     if (!user) {
       throw new RpcException("User Not Found")
     }

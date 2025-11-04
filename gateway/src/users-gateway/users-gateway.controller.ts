@@ -34,18 +34,18 @@ export class UsersGatewayController {
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string) {
-    console.log(`Gateway: Requesting user ${id}`);
+  async getUserById(@Param('id') userId: string) {
+    const result = await firstValueFrom(this.usersClient.send({ cmd: "get_user_by_id" }, userId))
     return {
-      message: `User ${id} fetched successfully`,
-      data: null,
+      message: `User ${userId} fetched successfully`,
+      data: result,
     };
   }
 
   @Post('register')
   async registerUser(@Body() registerUserDto: RegisterUserDto) {
     console.log("here", registerUserDto)
-    const result = await firstValueFrom(this.usersClient.send({ cmd: "create-user" }, registerUserDto))
+    const result = await firstValueFrom(this.usersClient.send({ cmd: "register_user" }, registerUserDto))
     return {
       message: 'User registered successfully',
       data: result,

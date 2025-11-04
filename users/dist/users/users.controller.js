@@ -27,7 +27,8 @@ let UsersController = class UsersController {
         return result;
     }
     async getUserById(id) {
-        return this.usersService.findById(id);
+        const result = await this.usersService.findById(id);
+        return result;
     }
     async registerUser(data) {
         console.log("data in register_user", data);
