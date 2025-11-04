@@ -9,11 +9,14 @@ export class RpcHttpExceptionFilter<T> implements ExceptionFilter {
     const response = ctx.getResponse();
 
     if (exception instanceof RpcException) {
+      console.log("here in expception")
       return response.status(400).json({
         status: 'error',
         message: exception.getError(),
       });
     }
+
+    console.log("done")
 
     return response.status(500).json({
       status: 'error',

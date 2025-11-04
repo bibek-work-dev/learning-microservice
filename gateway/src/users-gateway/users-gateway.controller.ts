@@ -44,7 +44,7 @@ export class UsersGatewayController {
 
   @Post('register')
   async registerUser(@Body() registerUserDto: RegisterUserDto) {
-    console.log("here")
+    console.log("here", registerUserDto)
     const result = await firstValueFrom(this.usersClient.send({ cmd: "create-user" }, registerUserDto))
     return {
       message: 'User registered successfully',

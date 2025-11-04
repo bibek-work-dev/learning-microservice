@@ -20,6 +20,7 @@ export class UsersController {
 
   @MessagePattern({ cmd: 'register_user' })
   async registerUser(@Payload() data: { name: string; email: string; password: string }) {
+    console.log("data in register_user", data)
     const result = await this.usersService.register(data.name, data.email, data.password);
     console.log("result in registerUser", result)
     return result
