@@ -9,22 +9,23 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 
 @Module({
   imports: [
-      GraphQLModule.forRoot<ApolloDriverConfig>({
+    GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       playground: false,
       plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
-      ConfigModule.forRoot({
+    ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configValidationSchema,
     }),
-        MongooseModule.forRootAsync({
+    MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get('MONGO_URI') ,
+        uri: configService.get('MONGO_URI'),
       }),
       inject: [ConfigService],
     }),
-    CommentsModule],
+    CommentsModule,
+  ],
   controllers: [],
   providers: [],
 })

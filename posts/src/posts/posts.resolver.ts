@@ -5,34 +5,40 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 // @Resolver()
-@Controller("")
+@Controller('')
 export class PostsResolver {
-    constructor(
+  constructor(
     private readonly postsService: PostsService,
     @Inject('USERS_SERVICE') private readonly usersClient: ClientProxy,
   ) {}
 
-  @Get("users")
+  @Get('users')
   async getUsers() {
-    console.log("here")
-    return firstValueFrom(this.usersClient.send({cmd: "get_users"}, {}))
+    console.log('here');
+    return firstValueFrom(this.usersClient.send({ cmd: 'get_users' }, {}));
   }
 
-  @Get("users/:id")
-  async getUserById(@Param("id") id: string) {
-    return firstValueFrom(this.usersClient.send({cmd: "get_user_by_id"}, {}))
+  @Get('users/:id')
+  async getUserById(@Param('id') id: string) {
+    return firstValueFrom(this.usersClient.send({ cmd: 'get_user_by_id' }, {}));
   }
 
-  @Get("posts")
+  @Get('posts')
   async getPosts() {
-    return this.postsService.findAll()
+    return this.postsService.findAll();
   }
 
-    @Post("posts")
-  async createPost(@Body() body: { title: string; content: string; authorId: string }) {
-        const post = await this.postsService.createPost(body.title, body.content, body.authorId);
+  @Post('posts')
+  async createPost(
+    @Body() body: { title: string; content: string; authorId: string },
+  ) {
+    const post = await this.postsService.createPost(
+      body.title,
+      body.content,
+      body.authorId,
+    );
 
-        this.usersClient.emit(
+    this.usersClient.emit(
       { cmd: 'post_created' },
       { postId: post._id, title: post.title, authorId: post.authorId },
     );

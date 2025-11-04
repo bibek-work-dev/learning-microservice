@@ -5,14 +5,18 @@ import { Post, PostDocument } from './posts.schema';
 
 @Injectable()
 export class PostsService {
-      constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
+  constructor(@InjectModel(Post.name) private postModel: Model<PostDocument>) {}
 
-  async findAll(): Promise< Post[]> {
+  async findAll(): Promise<Post[]> {
     return await this.postModel.find().exec();
   }
 
-  async createPost(title: string, content: string, authorId: string): Promise<PostDocument> {
+  async createPost(
+    title: string,
+    content: string,
+    authorId: string,
+  ): Promise<PostDocument> {
     const newPost = await this.postModel.create({ title, content, authorId });
-return newPost;
+    return newPost;
   }
 }
