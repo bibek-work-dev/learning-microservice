@@ -12,18 +12,18 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UsersResolver = void 0;
+exports.UsersController = void 0;
+const common_1 = require("@nestjs/common");
 const users_service_1 = require("./users.service");
 const microservices_1 = require("@nestjs/microservices");
-const common_1 = require("@nestjs/common");
-let UsersResolver = class UsersResolver {
+let UsersController = class UsersController {
     usersService;
     constructor(usersService) {
         this.usersService = usersService;
     }
     async getUsers() {
         const result = await this.usersService.findAll();
-        console.log('result', result);
+        console.log('result in users controller in users microservice', result);
         return result;
     }
     async getUserById(id) {
@@ -36,36 +36,36 @@ let UsersResolver = class UsersResolver {
         console.log('📢 Users service received post_created event:', data);
     }
 };
-exports.UsersResolver = UsersResolver;
+exports.UsersController = UsersController;
 __decorate([
     (0, microservices_1.MessagePattern)({ cmd: 'get_users' }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
-], UsersResolver.prototype, "getUsers", null);
+], UsersController.prototype, "getUsers", null);
 __decorate([
     (0, microservices_1.MessagePattern)({ cmd: 'get_user_by_id' }),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
-], UsersResolver.prototype, "getUserById", null);
+], UsersController.prototype, "getUserById", null);
 __decorate([
     (0, microservices_1.MessagePattern)({ cmd: 'create_user' }),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UsersResolver.prototype, "createUser", null);
+], UsersController.prototype, "createUser", null);
 __decorate([
     (0, microservices_1.EventPattern)({ cmd: 'post_created' }),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UsersResolver.prototype, "handlePostCreated", null);
-exports.UsersResolver = UsersResolver = __decorate([
-    (0, common_1.Controller)(),
+], UsersController.prototype, "handlePostCreated", null);
+exports.UsersController = UsersController = __decorate([
+    (0, common_1.Controller)('users'),
     __metadata("design:paramtypes", [users_service_1.UsersService])
-], UsersResolver);
-//# sourceMappingURL=users.resolver.js.map
+], UsersController);
+//# sourceMappingURL=users.controller.js.map

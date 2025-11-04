@@ -16,8 +16,7 @@ export class TransformInterceptor implements NestInterceptor {
         console.log('data', data);
         return {
           success: true,
-          data: data?.data ?? data, // If controller returns {data, message}
-          message: data?.message ?? null,
+          ...data,
         };
       }),
     );

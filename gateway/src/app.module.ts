@@ -1,18 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { PostsModule } from './posts/posts.module';
-import { CommonModule } from './common/common.module';
-import { CommentsModule } from './comments/comments.module';
 import { AppController } from './app.controller';
+import { UsersGatewayModule } from './users-gateway/users-gateway.module';
+import { PostsGatewayModule } from './posts-gateway/posts-gateway.module';
+import { CommentsGatewayModule } from './comments-gateway/comments-gateway.module';
+import { GatewayCommonsModule } from './gateway-commons/gateway-commons.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    UsersModule,
-    PostsModule,
-    CommonModule,
-    CommentsModule,
+    UsersGatewayModule,
+    PostsGatewayModule,
+    CommentsGatewayModule,
+    GatewayCommonsModule,
   ],
   controllers: [AppController],
   providers: [],
