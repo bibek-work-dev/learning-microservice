@@ -29,8 +29,25 @@ let UsersController = class UsersController {
     async getUserById(id) {
         return this.usersService.findById(id);
     }
-    async createUser(data) {
-        return this.usersService.createUser(data.name, data.email);
+    async registerUser(data) {
+        const result = await this.usersService.register(data.name, data.email, data.password);
+        console.log("result in registerUser", result);
+        return result;
+    }
+    async loginUser(data) {
+        const result = await this.usersService.login(data.email, data.password);
+        console.log("result in loginUser", result);
+        return result;
+    }
+    async updateUser(data) {
+        const result = await this.usersService.update(data.id, data.update);
+        console.log("result in updateUser", result);
+        return result;
+    }
+    async deleteUser(id) {
+        const result = await this.usersService.delete(id);
+        console.log("result", result);
+        return result;
     }
     async handlePostCreated(data) {
         console.log('📢 Users service received post_created event:', data);
@@ -51,12 +68,33 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getUserById", null);
 __decorate([
-    (0, microservices_1.MessagePattern)({ cmd: 'create_user' }),
+    (0, microservices_1.MessagePattern)({ cmd: 'register_user' }),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
-], UsersController.prototype, "createUser", null);
+], UsersController.prototype, "registerUser", null);
+__decorate([
+    (0, microservices_1.MessagePattern)({ cmd: 'login_user' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "loginUser", null);
+__decorate([
+    (0, microservices_1.MessagePattern)({ cmd: 'update_user' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "updateUser", null);
+__decorate([
+    (0, microservices_1.MessagePattern)({ cmd: 'delete_user' }),
+    __param(0, (0, microservices_1.Payload)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UsersController.prototype, "deleteUser", null);
 __decorate([
     (0, microservices_1.EventPattern)({ cmd: 'post_created' }),
     __param(0, (0, microservices_1.Payload)()),

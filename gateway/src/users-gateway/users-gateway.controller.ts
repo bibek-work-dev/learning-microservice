@@ -8,16 +8,18 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { UsersGatewayService } from './users-gateway.service';
+
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
+import { RegisterUserDto } from './dto/register-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @Controller('users-gateway')
 export class UsersGatewayController {
   constructor(
     @Inject('USERS_SERVICE') private usersClient: ClientProxy,
-    private readonly usersGatewayService: UsersGatewayService,
-  ) {}
+
+  ) { }
 
   @Get('')
   async getUsers() {
@@ -41,41 +43,42 @@ export class UsersGatewayController {
   }
 
   @Post('register')
-  async registerUser(@Body() body: { name: string; email: string }) {
-    console.log('Gateway creating user', body);
+  async registerUser(@Body() registerUserDto: RegisterUserDto) {
+    console.log("here")
+    const result = await firstValueFrom(this.usersClient.send({ cmd: "create-user" }, registerUserDto))
     return {
       message: 'User registered successfully',
-      data: null,
+      data: result,
     };
   }
 
   @Post('login')
-  async loginUser(@Body() body: any) {
-    console.log('Gateway login', body);
+  async loginUser(@Body() loginUserDto: LoginUserDto) {
+    const result = await firstValueFrom(this.usersClient.send({ cmd: "login_user" }, loginUserDto))
     return {
       message: 'User logged in successfully',
-      data: null,
+      data: result,
     };
   }
 
   @Patch(':id')
   async updateUser(
-    @Param('id') id: string,
-    @Body() body: { name?: string; email?: string },
+    @Param('id') userId: string,
+    @Body() updateUserDto: { name?: string; email?: string },
   ) {
-    console.log(`Gateway updating user ${id}`, body);
+    const result = await firstValueFrom(this.usersClient.send({ cmd: "update_user" }, { params: { userId }, body: updateUserDto }))
     return {
-      message: `User ${id} updated successfully`,
-      data: null,
+      message: `User ${userId} updated successfully`,
+      data: result,
     };
   }
 
   @Delete(':id')
   async deleteUser(@Param('id') userId: string) {
-    console.log('Gateway delete', userId);
+    const result = await firstValueFrom(this.usersClient.send({ cmd: "delete_user" }, userId))
     return {
       message: `User ${userId} deleted successfully`,
-      data: null,
+      data: result,
     };
   }
 }

@@ -4,7 +4,7 @@ import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @MessagePattern({ cmd: 'get_users' })
   async getUsers() {
@@ -18,9 +18,32 @@ export class UsersController {
     return this.usersService.findById(id);
   }
 
-  @MessagePattern({ cmd: 'create_user' })
-  async createUser(@Payload() data: { name: string; email?: string }) {
-    return this.usersService.createUser(data.name, data.email);
+  @MessagePattern({ cmd: 'register_user' })
+  async registerUser(@Payload() data: { name: string; email: string; password: string }) {
+    const result = await this.usersService.register(data.name, data.email, data.password);
+    console.log("result in registerUser", result)
+    return result
+  }
+
+  @MessagePattern({ cmd: 'login_user' })
+  async loginUser(@Payload() data: { email: string; password: string }) {
+    const result = await this.usersService.login(data.email, data.password);
+    console.log("result in loginUser", result)
+    return result;
+  }
+
+  @MessagePattern({ cmd: 'update_user' })
+  async updateUser(@Payload() data: { id: string; update: Partial<any> }) {
+    const result = await this.usersService.update(data.id, data.update);
+    console.log("result in updateUser", result)
+    return result
+  }
+
+  @MessagePattern({ cmd: 'delete_user' })
+  async deleteUser(@Payload() id: string) {
+    const result = await this.usersService.delete(id);
+    console.log("result", result);
+    return result;
   }
 
   @EventPattern({ cmd: 'post_created' })

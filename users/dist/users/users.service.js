@@ -17,26 +17,65 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const users_schema_1 = require("./users.schema");
 const mongoose_2 = require("mongoose");
+const bcrypt = require("bcrypt");
+const jwt_1 = require("@nestjs/jwt");
+const microservices_1 = require("@nestjs/microservices");
 let UsersService = class UsersService {
     userModel;
-    constructor(userModel) {
+    jwtService;
+    constructor(userModel, jwtService) {
         this.userModel = userModel;
+        this.jwtService = jwtService;
     }
     async findAll() {
-        return this.userModel.find().exec();
+        const result = await this.userModel.find().exec();
+        return result;
     }
     async findById(id) {
-        return this.userModel.findById(id).exec();
+        const user = await this.userModel.findById(id).exec();
+        if (!user) {
+            throw new microservices_1.RpcException("User Not Found");
+        }
+        return user;
     }
-    async createUser(name, email) {
-        const newUser = new this.userModel({ name, email });
-        return newUser.save();
+    async register(name, email, password) {
+        const exists = await this.userModel.findOne({ email });
+        if (exists)
+            throw new microservices_1.RpcException('Email already in use');
+        const hashed = await bcrypt.hash(password, 10);
+        const createdUser = await this.userModel.create({ name, email, password: hashed });
+        return createdUser;
+    }
+    async login(email, password) {
+        const user = await this.userModel.findOne({ email });
+        if (!user)
+            throw new microservices_1.RpcException('User not found');
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch)
+            throw new microservices_1.RpcException('Invalid credentials');
+        const payload = { sub: user._id, email: user.email };
+        const token = this.jwtService.sign(payload);
+        return { accessToken: token, user };
+    }
+    async update(id, data) {
+        const updatedUser = await this.userModel.findByIdAndUpdate(id, data, { new: true }).exec();
+        if (!updatedUser) {
+            throw new microservices_1.RpcException("No user found to update");
+        }
+        return updatedUser;
+    }
+    async delete(id) {
+        const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
+        if (!deletedUser) {
+            throw new microservices_1.RpcException("No user to delete");
+        }
+        return deletedUser;
     }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(users_schema_1.User.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __metadata("design:paramtypes", [mongoose_2.Model, jwt_1.JwtService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

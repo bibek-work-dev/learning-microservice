@@ -1,9 +1,9 @@
-import { PostsGatewayService } from './posts-gateway.service';
+
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 
 @Controller('posts-gateway')
 export class PostsGatewayController {
-  constructor(private readonly postsGatewayService: PostsGatewayService) {}
+  constructor() { }
 
   @Get('')
   async getPosts() {
