@@ -33,22 +33,30 @@ let UsersService = class UsersService {
     }
     async findById(id) {
         const user = await this.userModel.findById(id).exec();
-        console.log("userr in findById", user);
+        console.log('userr in findById', user);
         if (!user) {
-            throw new microservices_1.RpcException("User Not Found");
+            throw new microservices_1.RpcException('User Not Found');
         }
         return user;
     }
-    async register(name, email, password) {
+    async register(data) {
+        const { email, name, password } = data;
         const exists = await this.userModel.findOne({ email });
         if (exists)
             throw new microservices_1.RpcException('Email already in use');
         const hashed = await bcrypt.hash(password, 10);
-        const createdUser = await this.userModel.create({ name, email, password: hashed });
+        const createdUser = await this.userModel.create({
+            name,
+            email,
+            password: hashed,
+        });
         return createdUser;
     }
-    async login(email, password) {
-        const user = await this.userModel.findOne({ email });
+    async login(data) {
+        const { email, password } = data;
+        const user = await this.userModel
+            .findOne({ email })
+            .select('name email password');
         if (!user)
             throw new microservices_1.RpcException('User not found');
         const isMatch = await bcrypt.compare(password, user.password);
@@ -56,19 +64,24 @@ let UsersService = class UsersService {
             throw new microservices_1.RpcException('Invalid credentials');
         const payload = { sub: user._id, email: user.email };
         const token = this.jwtService.sign(payload);
+        user.lastLogin = new Date();
+        await user.save();
         return { accessToken: token, user };
     }
-    async update(id, data) {
-        const updatedUser = await this.userModel.findByIdAndUpdate(id, data, { new: true }).exec();
+    async update(userId, data) {
+        const updatedUser = await this.userModel
+            .findByIdAndUpdate(userId, data, { new: true })
+            .exec();
+        console.log('updatedUser', updatedUser);
         if (!updatedUser) {
-            throw new microservices_1.RpcException("No user found to update");
+            throw new microservices_1.RpcException('No user found to update');
         }
         return updatedUser;
     }
-    async delete(id) {
-        const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
+    async delete(userId) {
+        const deletedUser = await this.userModel.findByIdAndDelete(userId).exec();
         if (!deletedUser) {
-            throw new microservices_1.RpcException("No user to delete");
+            throw new microservices_1.RpcException('No user to delete');
         }
         return deletedUser;
     }
@@ -77,6 +90,7 @@ exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(users_schema_1.User.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model, jwt_1.JwtService])
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        jwt_1.JwtService])
 ], UsersService);
 //# sourceMappingURL=users.service.js.map

@@ -15,6 +15,10 @@ let User = class User {
     name;
     email;
     password;
+    postCount;
+    commentCount;
+    lastLogin;
+    loggedInTimes;
 };
 exports.User = User;
 __decorate([
@@ -29,6 +33,22 @@ __decorate([
     (0, mongoose_1.Prop)({ required: true, select: false }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "postCount", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "commentCount", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: null }),
+    __metadata("design:type", Date)
+], User.prototype, "lastLogin", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "loggedInTimes", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

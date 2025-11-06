@@ -12,7 +12,16 @@ export class Post {
   content: string;
 
   @Prop({ required: true })
-  authorId: string; 
+  authorId: string;
+
+  @Prop({ default: 0 })
+  likesCount: number;
+
+  @Prop({ default: 0 })
+  commentsCount: number;
+
+  @Prop({ default: null })
+  lastEditedAt: Date;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

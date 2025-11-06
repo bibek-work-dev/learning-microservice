@@ -13,6 +13,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const users_schema_1 = require("./users.schema");
 const users_controller_1 = require("./users.controller");
 const jwt_1 = require("@nestjs/jwt");
+const microservices_1 = require("@nestjs/microservices");
 let UsersModule = class UsersModule {
 };
 exports.UsersModule = UsersModule;
@@ -24,6 +25,17 @@ exports.UsersModule = UsersModule = __decorate([
                 secret: 'my-secret',
                 signOptions: { expiresIn: '1d' },
             }),
+            microservices_1.ClientsModule.register([
+                {
+                    name: 'EVENTS_BUS',
+                    transport: microservices_1.Transport.RMQ,
+                    options: {
+                        urls: ['amqp://localhost:5672'],
+                        queue: 'events_queue',
+                        queueOptions: { durable: true },
+                    },
+                },
+            ]),
         ],
         controllers: [users_controller_1.UsersController],
         providers: [users_service_1.UsersService],

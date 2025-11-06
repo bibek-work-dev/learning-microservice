@@ -27,11 +27,8 @@ export class UsersService {
     return user;
   }
 
-  async register(
-    name: string,
-    email: string,
-    password: string,
-  ): Promise<UserDocument> {
+  async register(data: any): Promise<UserDocument> {
+    const { email, name, password } = data;
     const exists = await this.userModel.findOne({ email });
     if (exists) throw new RpcException('Email already in use');
 
@@ -45,11 +42,12 @@ export class UsersService {
     return createdUser;
   }
 
-  async login(
-    email: string,
-    password: string,
-  ): Promise<{ accessToken: string; user: UserDocument }> {
-    const user = await this.userModel.findOne({ email });
+  async login(data: any): Promise<{ accessToken: string; user: UserDocument }> {
+    const { email, password } = data;
+    const user = await this.userModel
+      .findOne({ email })
+      .select('name email password');
+
     if (!user) throw new RpcException('User not found');
 
     const isMatch = await bcrypt.compare(password, user.password);
@@ -58,21 +56,28 @@ export class UsersService {
     const payload = { sub: user._id, email: user.email };
     const token = this.jwtService.sign(payload);
 
+    user.lastLogin = new Date();
+    await user.save();
+
     return { accessToken: token, user };
   }
 
-  async update(id: string, data: Partial<UserDocument>): Promise<UserDocument> {
+  async update(
+    userId: string,
+    data: Partial<UserDocument>,
+  ): Promise<UserDocument> {
     const updatedUser = await this.userModel
-      .findByIdAndUpdate(id, data, { new: true })
+      .findByIdAndUpdate(userId, data, { new: true })
       .exec();
+    console.log('updatedUser', updatedUser);
     if (!updatedUser) {
       throw new RpcException('No user found to update');
     }
     return updatedUser;
   }
 
-  async delete(id: string): Promise<UserDocument> {
-    const deletedUser = await this.userModel.findByIdAndDelete(id).exec();
+  async delete(userId: string): Promise<UserDocument> {
+    const deletedUser = await this.userModel.findByIdAndDelete(userId).exec();
     if (!deletedUser) {
       throw new RpcException('No user to delete');
     }

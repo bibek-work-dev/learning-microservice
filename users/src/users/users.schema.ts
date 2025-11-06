@@ -14,5 +14,17 @@ export class User {
 
   @Prop({ required: true, select: false })
   password: string;
+
+  @Prop({ default: 0 })
+  postCount: number;
+
+  @Prop({ default: 0 })
+  commentCount: number;
+
+  @Prop({ default: null })
+  lastLogin: Date;
+
+  @Prop({ default: 0 })
+  loggedInTimes: number;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

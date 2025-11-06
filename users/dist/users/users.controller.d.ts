@@ -1,14 +1,14 @@
 import { UsersService } from './users.service';
+import { ClientProxy, RmqContext } from '@nestjs/microservices';
 export declare class UsersController {
     private readonly usersService;
-    constructor(usersService: UsersService);
-    getUsers(): Promise<import("./users.schema").UserDocument[]>;
-    getUserById(id: string): Promise<import("./users.schema").UserDocument>;
-    registerUser(data: {
-        name: string;
-        email: string;
-        password: string;
+    private eventsBus;
+    constructor(usersService: UsersService, eventsBus: ClientProxy);
+    getUsers(context: RmqContext): Promise<import("./users.schema").UserDocument[]>;
+    getUserById(payload: {
+        userId: string;
     }): Promise<import("./users.schema").UserDocument>;
+    registerUser(data: any): Promise<import("./users.schema").UserDocument>;
     loginUser(data: {
         email: string;
         password: string;
@@ -17,10 +17,10 @@ export declare class UsersController {
         user: import("./users.schema").UserDocument;
     }>;
     updateUser(data: {
-        id: string;
-        update: Partial<any>;
+        userId: string;
+        body: Partial<any>;
     }): Promise<import("./users.schema").UserDocument>;
-    deleteUser(id: string): Promise<import("./users.schema").UserDocument>;
+    deleteUser(payload: any): Promise<import("./users.schema").UserDocument>;
     handlePostCreated(data: {
         postId: string;
         title: string;

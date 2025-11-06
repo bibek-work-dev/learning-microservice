@@ -18,37 +18,40 @@ const users_service_1 = require("./users.service");
 const microservices_1 = require("@nestjs/microservices");
 let UsersController = class UsersController {
     usersService;
-    constructor(usersService) {
+    eventsBus;
+    constructor(usersService, eventsBus) {
         this.usersService = usersService;
+        this.eventsBus = eventsBus;
     }
-    async getUsers() {
+    async getUsers(context) {
         const result = await this.usersService.findAll();
+        const channel = context.getChannelRef();
+        const originalMsg = context.getMessage();
         console.log('result in users controller in users microservice', result);
         return result;
     }
-    async getUserById(id) {
-        const result = await this.usersService.findById(id);
+    async getUserById(payload) {
+        console.log('type of userId', typeof payload.userId);
+        const { userId } = payload;
+        const result = await this.usersService.findById(userId);
         return result;
     }
     async registerUser(data) {
-        console.log("data in register_user", data);
-        const result = await this.usersService.register(data.name, data.email, data.password);
-        console.log("result in registerUser", result);
+        const result = await this.usersService.register(data);
         return result;
     }
     async loginUser(data) {
-        const result = await this.usersService.login(data.email, data.password);
-        console.log("result in loginUser", result);
+        const result = await this.usersService.login(data);
         return result;
     }
     async updateUser(data) {
-        const result = await this.usersService.update(data.id, data.update);
-        console.log("result in updateUser", result);
+        const { userId, body } = data;
+        const result = await this.usersService.update(userId, data.body);
         return result;
     }
-    async deleteUser(id) {
-        const result = await this.usersService.delete(id);
-        console.log("result", result);
+    async deleteUser(payload) {
+        const { userId } = payload;
+        const result = await this.usersService.delete(userId);
         return result;
     }
     async handlePostCreated(data) {
@@ -58,15 +61,16 @@ let UsersController = class UsersController {
 exports.UsersController = UsersController;
 __decorate([
     (0, microservices_1.MessagePattern)({ cmd: 'get_users' }),
+    __param(0, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [microservices_1.RmqContext]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getUsers", null);
 __decorate([
     (0, microservices_1.MessagePattern)({ cmd: 'get_user_by_id' }),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "getUserById", null);
 __decorate([
@@ -94,7 +98,7 @@ __decorate([
     (0, microservices_1.MessagePattern)({ cmd: 'delete_user' }),
     __param(0, (0, microservices_1.Payload)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], UsersController.prototype, "deleteUser", null);
 __decorate([
@@ -106,6 +110,8 @@ __decorate([
 ], UsersController.prototype, "handlePostCreated", null);
 exports.UsersController = UsersController = __decorate([
     (0, common_1.Controller)('users'),
-    __metadata("design:paramtypes", [users_service_1.UsersService])
+    __param(1, (0, common_1.Inject)('EVENTS_BUS')),
+    __metadata("design:paramtypes", [users_service_1.UsersService,
+        microservices_1.ClientProxy])
 ], UsersController);
 //# sourceMappingURL=users.controller.js.map

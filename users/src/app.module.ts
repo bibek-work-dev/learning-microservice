@@ -6,24 +6,21 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configValidationSchema } from './config/config.schema';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
-    // GraphQLModule.forRoot<ApolloDriverConfig>({
-    //   driver: ApolloDriver,
-    //   playground: false,
-    //   plugins: [ApolloServerPluginLandingPageLocalDefault()],
-    // }),
-      ConfigModule.forRoot({
+    ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: configValidationSchema,
     }),
-        MongooseModule.forRootAsync({
+    MongooseModule.forRootAsync({
       useFactory: async (configService: ConfigService) => ({
-        uri: configService.get('MONGO_URI') ,
+        uri: configService.get('MONGO_URI'),
       }),
       inject: [ConfigService],
     }),
+
     UsersModule,
   ],
   controllers: [],

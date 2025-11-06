@@ -7,11 +7,11 @@ export declare class UsersService {
     constructor(userModel: Model<UserDocument>, jwtService: JwtService);
     findAll(): Promise<UserDocument[]>;
     findById(id: string): Promise<UserDocument>;
-    register(name: string, email: string, password: string): Promise<UserDocument>;
-    login(email: string, password: string): Promise<{
+    register(data: any): Promise<UserDocument>;
+    login(data: any): Promise<{
         accessToken: string;
         user: UserDocument;
     }>;
-    update(id: string, data: Partial<UserDocument>): Promise<UserDocument>;
-    delete(id: string): Promise<UserDocument>;
+    update(userId: string, data: Partial<UserDocument>): Promise<UserDocument>;
+    delete(userId: string): Promise<UserDocument>;
 }

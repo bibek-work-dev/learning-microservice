@@ -7,26 +7,26 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 
 import { firstValueFrom } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
+import { IsMongoIdDto } from './dto/is-mongoId.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { AuthGuard } from 'src/gateway-commons/guards/auth.guard';
 
 @Controller('users-gateway')
 export class UsersGatewayController {
-  constructor(
-    @Inject('USERS_SERVICE') private usersClient: ClientProxy,
-
-  ) { }
+  constructor(@Inject('USERS_SERVICE') private usersClient: ClientProxy) {}
 
   @Get('')
   async getUsers() {
     const result = await firstValueFrom(
       this.usersClient.send({ cmd: 'get_users' }, {}),
     );
-    console.log('data in getUsers gateway', result);
     return {
       message: 'All users fetched successfully',
       data: result,
@@ -34,18 +34,23 @@ export class UsersGatewayController {
   }
 
   @Get(':id')
-  async getUserById(@Param('id') userId: string) {
-    const result = await firstValueFrom(this.usersClient.send({ cmd: "get_user_by_id" }, userId))
+  async getUserById(@Param() params: IsMongoIdDto) {
+    const { id } = params;
+    const result = await firstValueFrom(
+      this.usersClient.send({ cmd: 'get_user_by_id' }, { userId: id }),
+    );
     return {
-      message: `User ${userId} fetched successfully`,
+      message: `User ${id} fetched successfully`,
       data: result,
     };
   }
 
   @Post('register')
   async registerUser(@Body() registerUserDto: RegisterUserDto) {
-    console.log("here", registerUserDto)
-    const result = await firstValueFrom(this.usersClient.send({ cmd: "register_user" }, registerUserDto))
+    console.log('here', registerUserDto);
+    const result = await firstValueFrom(
+      this.usersClient.send({ cmd: 'register_user' }, registerUserDto),
+    );
     return {
       message: 'User registered successfully',
       data: result,
@@ -54,7 +59,9 @@ export class UsersGatewayController {
 
   @Post('login')
   async loginUser(@Body() loginUserDto: LoginUserDto) {
-    const result = await firstValueFrom(this.usersClient.send({ cmd: "login_user" }, loginUserDto))
+    const result = await firstValueFrom(
+      this.usersClient.send({ cmd: 'login_user' }, loginUserDto),
+    );
     return {
       message: 'User logged in successfully',
       data: result,
@@ -63,21 +70,31 @@ export class UsersGatewayController {
 
   @Patch(':id')
   async updateUser(
-    @Param('id') userId: string,
-    @Body() updateUserDto: { name?: string; email?: string },
+    @Param() params: IsMongoIdDto,
+    @Body() updateUserDto: UpdateUserDto,
   ) {
-    const result = await firstValueFrom(this.usersClient.send({ cmd: "update_user" }, { params: { userId }, body: updateUserDto }))
+    const { id } = params;
+    const result = await firstValueFrom(
+      this.usersClient.send(
+        { cmd: 'update_user' },
+        { userId: id, body: updateUserDto },
+      ),
+    );
     return {
-      message: `User ${userId} updated successfully`,
+      message: `User ${id} updated successfully`,
       data: result,
     };
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteUser(@Param('id') userId: string) {
-    const result = await firstValueFrom(this.usersClient.send({ cmd: "delete_user" }, userId))
+  async deleteUser(@Param() params: IsMongoIdDto) {
+    const { id } = params;
+    const result = await firstValueFrom(
+      this.usersClient.send({ cmd: 'delete_user' }, { userId: id }),
+    );
     return {
-      message: `User ${userId} deleted successfully`,
+      message: `User ${id} deleted successfully`,
       data: result,
     };
   }

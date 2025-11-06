@@ -1,30 +1,48 @@
-import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
+} from '@nestjs/common';
 
 @Catch()
 export class RpcHttpExceptionFilter<T> implements ExceptionFilter {
   catch(exception: T, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
+    const ctx = host.getType();
+    console.log('ctx', ctx);
 
-    console.log('exception', exception);
+    if (ctx == 'http') {
+      const ctx = host.switchToHttp();
+      const response = ctx.getResponse();
 
-    if (exception instanceof RpcException) {
-      console.log('here in expception');
-      return response.status(400).json({
+      console.log(exception, exception instanceof HttpException);
+
+      if (exception instanceof HttpException) {
+        const res = exception.getResponse();
+        return response.status(exception.getStatus()).json(res);
+      }
+
+      if (
+        exception &&
+        typeof exception === 'object' &&
+        exception['status'] &&
+        exception['message']
+      ) {
+        const message = (exception as any).message;
+        const status = (exception as any).status;
+        return response.status(400).json({
+          success: false,
+          status: status,
+          message: message,
+        });
+      }
+
+      return response.status(500).json({
         success: false,
         status: 'error',
-        message: exception.getError(),
+        message: 'Internal server error',
       });
     }
-
-    console.log('done');
-
-    return response.status(500).json({
-      success: false,
-      status: 'error',
-      message: 'Internal server error',
-    });
   }
 }
 
