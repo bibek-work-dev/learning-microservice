@@ -13,7 +13,15 @@ export class RpcHttpExceptionFilter<T> implements ExceptionFilter {
 
     if (ctx == 'http') {
       const ctx = host.switchToHttp();
+
       const response = ctx.getResponse();
+
+      const request = ctx.getRequest();
+
+      console.log('HTTP Request URL:', request.url);
+      console.log('HTTP Method:', request.method);
+      console.log('Request params:', request.params);
+      console.log('Request body:', request.body);
 
       console.log(exception, exception instanceof HttpException);
 

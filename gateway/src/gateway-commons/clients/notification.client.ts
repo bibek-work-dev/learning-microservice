@@ -1,12 +1,12 @@
 import { ClientsModule, Transport } from '@nestjs/microservices';
 
-export const PostsClient = ClientsModule.register([
+export const AnalyticsClient = ClientsModule.register([
   {
-    name: 'POSTS_SERVICE',
+    name: 'NOTIFICATION_SERVICE',
     transport: Transport.RMQ,
     options: {
       urls: ['amqp://localhost:5672'],
-      queue: 'posts_queue',
+      queue: 'notification_queue',
       queueOptions: { durable: true },
     },
   },

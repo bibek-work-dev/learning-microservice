@@ -5,6 +5,7 @@ import { UsersGatewayModule } from './users-gateway/users-gateway.module';
 import { PostsGatewayModule } from './posts-gateway/posts-gateway.module';
 import { CommentsGatewayModule } from './comments-gateway/comments-gateway.module';
 import { GatewayCommonsModule } from './gateway-commons/gateway-commons.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { GatewayCommonsModule } from './gateway-commons/gateway-commons.module';
     PostsGatewayModule,
     CommentsGatewayModule,
     GatewayCommonsModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [],

@@ -25,8 +25,6 @@ let UsersController = class UsersController {
     }
     async getUsers(context) {
         const result = await this.usersService.findAll();
-        const channel = context.getChannelRef();
-        const originalMsg = context.getMessage();
         console.log('result in users controller in users microservice', result);
         return result;
     }

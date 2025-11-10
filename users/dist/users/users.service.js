@@ -62,7 +62,7 @@ let UsersService = class UsersService {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch)
             throw new microservices_1.RpcException('Invalid credentials');
-        const payload = { sub: user._id, email: user.email };
+        const payload = { sub: user._id, email: user.email, id: user._id };
         const token = this.jwtService.sign(payload);
         user.lastLogin = new Date();
         await user.save();

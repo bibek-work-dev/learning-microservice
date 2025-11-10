@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 
@@ -17,6 +19,7 @@ import { LoginUserDto } from './dto/login-user.dto';
 import { IsMongoIdDto } from './dto/is-mongoId.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthGuard } from 'src/gateway-commons/guards/auth.guard';
+import { CurrentUser } from 'src/gateway-commons/decorators/current-user.decorator';
 
 @Controller('users-gateway')
 export class UsersGatewayController {
@@ -68,33 +71,44 @@ export class UsersGatewayController {
     };
   }
 
+  @UseGuards(AuthGuard)
   @Patch(':id')
   async updateUser(
     @Param() params: IsMongoIdDto,
     @Body() updateUserDto: UpdateUserDto,
+    @Req() req: Request,
+    @CurrentUser('id') userId: string,
   ) {
     const { id } = params;
+    if (id !== userId)
+      throw new UnauthorizedException("You aren't authorized at all");
     const result = await firstValueFrom(
       this.usersClient.send(
         { cmd: 'update_user' },
-        { userId: id, body: updateUserDto },
+        { userId, body: updateUserDto },
       ),
     );
     return {
-      message: `User ${id} updated successfully`,
+      message: `User ${userId} updated successfully`,
       data: result,
     };
   }
 
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async deleteUser(@Param() params: IsMongoIdDto) {
+  async deleteUser(
+    @Param() params: IsMongoIdDto,
+    @CurrentUser('id') userId: string,
+  ) {
     const { id } = params;
+    if (id !== userId)
+      throw new UnauthorizedException("You aren't authorized at all");
+    console.log('user', id, userId);
     const result = await firstValueFrom(
-      this.usersClient.send({ cmd: 'delete_user' }, { userId: id }),
+      this.usersClient.send({ cmd: 'delete_user' }, { userId }),
     );
     return {
-      message: `User ${id} deleted successfully`,
+      message: `User ${userId} deleted successfully`,
       data: result,
     };
   }

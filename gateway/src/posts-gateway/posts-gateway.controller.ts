@@ -1,57 +1,119 @@
-
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Inject,
+  UseGuards,
+  Patch,
+  Req,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+import { IsMongoIdDto } from './dtos/is-mongoId.dto';
+import { AuthGuard } from 'src/gateway-commons/guards/auth.guard';
+import { CurrentUser } from 'src/gateway-commons/decorators/current-user.decorator';
+import { UpdatePostDto } from './dtos/update-post.dt';
+import { CreatePostDto } from './dtos/create-post.dto';
 
 @Controller('posts-gateway')
 export class PostsGatewayController {
-  constructor() { }
+  constructor(@Inject('POSTS_SERVICE') private postsClient: ClientProxy) {}
+
+  @Get(':id')
+  async getPostById(@Param() param: IsMongoIdDto) {
+    const { id } = param;
+    console.log('postId', id);
+    const result = await firstValueFrom(
+      this.postsClient.send({ cmd: 'get_post_by_id' }, { postId: id }),
+    );
+    console.log('result', result);
+    return {
+      message: 'All posts fetched successfully',
+      data: result,
+    };
+  }
 
   @Get('')
   async getPosts() {
-    console.log('Gateway: Requesting all posts');
+    const result = await firstValueFrom(
+      this.postsClient.send({ cmd: 'get_posts' }, {}),
+    );
     return {
       message: 'All posts fetched successfully',
-      data: null,
+      data: result,
     };
   }
 
-  @Get(':id')
-  async getPostById(@Param('id') postId: string) {
-    console.log('Gateway: Requesting single post');
-    return {
-      message: `Post ${postId} fetched successfully`,
-      data: null,
-    };
-  }
-
+  @UseGuards(AuthGuard)
   @Post('')
   async createPost(
-    @Body() body: { title: string; content: string; authorId: string },
+    @Body() createPostDto: CreatePostDto,
+    @CurrentUser('id') userId: string,
   ) {
-    console.log('Gateway creating post....', body);
+    const payload = { userId, body: createPostDto };
+    console.log('payload', payload);
+    const result = await firstValueFrom(
+      this.postsClient.send({ cmd: 'create_post' }, payload),
+    );
     return {
       message: 'Post created successfully',
-      data: null,
+      data: result,
     };
   }
 
+  @UseGuards(AuthGuard)
   @Post(':id/like')
   async likePost(
-    @Param('id') postId: string,
-    @Body() body: { userId: string },
+    @Param() params: IsMongoIdDto,
+    @CurrentUser('id') userId: string,
   ) {
-    console.log('Gateway: post like ', postId, body);
+    const { id } = params;
+    const result = await firstValueFrom(
+      this.postsClient.send({ cmd: 'like_post' }, { postId: id, userId }),
+    );
     return {
-      message: `Post ${postId} liked successfully`,
-      data: null,
+      message: `Post ${id} liked successfully`,
+      data: result,
     };
   }
 
-  @Delete(':id')
-  async deletePost(@Param('id') postId: string) {
-    console.log('Gateway post delete', postId);
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async updatePost(
+    @Param() params: IsMongoIdDto,
+    @Body() updatePostDto: UpdatePostDto,
+    @CurrentUser('id') userId: string,
+  ) {
+    const { id } = params;
+    console.log('updatePostDto', updatePostDto);
+    const result = await firstValueFrom(
+      this.postsClient.send(
+        { cmd: 'update_post' },
+        { userId, postId: id, body: updatePostDto },
+      ),
+    );
     return {
-      message: `Post ${postId} deleted successfully`,
-      data: null,
+      message: `Post ${id} updated successfully`,
+      data: result,
+    };
+  }
+
+  @UseGuards(AuthGuard)
+  @Delete(':id')
+  async deletePost(
+    @Param() params: IsMongoIdDto,
+    @CurrentUser('id') userId: string,
+  ) {
+    const { id } = params;
+    const result = await firstValueFrom(
+      this.postsClient.send({ cmd: 'delete_post' }, { userId, postId: id }),
+    );
+    return {
+      message: `Post ${id} deleted successfully`,
+      data: result,
     };
   }
 }

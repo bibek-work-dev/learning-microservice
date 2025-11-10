@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Inject } from '@nestjs/common';
+import { Controller, Inject } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
   ClientProxy,
@@ -19,8 +19,6 @@ export class UsersController {
   @MessagePattern({ cmd: 'get_users' })
   async getUsers(@Ctx() context: RmqContext) {
     const result = await this.usersService.findAll();
-    const channel = context.getChannelRef();
-    const originalMsg = context.getMessage();
     console.log('result in users controller in users microservice', result);
     return result;
   }

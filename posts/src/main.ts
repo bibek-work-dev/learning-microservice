@@ -1,9 +1,22 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3001);
-  console.log(`The Post application is running in ${process.env.PORT}`)
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://localhost:5672'],
+        queue: 'posts_queue',
+        queueOptions: {
+          durable: true,
+        },
+      },
+    },
+  );
+  await app.listen();
+  console.log(`The Post application is running in ${process.env.PORT}`);
 }
 bootstrap();
